@@ -1,0 +1,68 @@
+from json import load
+from ..db_control.assessmentController import get_assessment
+
+
+
+class Tester():
+    def __init__(self) -> None:
+        self.marks = []
+        with open('parse_mode.json', 'r') as file:
+            self.iterators = load(file)
+
+
+    #Executes with the change of the excersize, writes data from DB to self.assessmentData
+    def change_task(self, taskID):
+        self.assessmentData = get_assessment(taskID)
+    
+
+    #returns marks of the effficiency of the programm + final mark
+    def get_efficiency(self) -> tuple: # -> list, str
+        with open('.../userData/currentCode.py', 'rw') as file:
+            code = file.read().splitlines()
+            file.write(self.parse(code))
+        self.marks = []
+        from ...userData.currentCode import main
+        for _, testData in self.assessmentData.items():
+            answer, loopIterations, conditionIterations = main(testData["input"]) 
+            if answer == testData["output"]:
+                
+            else:
+                self.marks.append(['F', 'F'])
+                
+
+
+
+
+    #includes counters of the efficiency into the algorythm
+    '''
+    After every loop / if statement inside the body of the statement variables implementation adds. On the first lines of code iteration_variable = 0 adds #? 0
+    Last print is gonna be detected as the answer for code, so I have printStatementFound flag to change print on answerToTestTask only once. But if there can be many answers inside one
+     print statement, so I don''t delete ( ans ) with peint and answer becomes tuple. But this way in every exersize output format needs to be in the format of print(a, b, c) #? 1 
+    Every input statement is changed to element of testTaskInputData list with replacing 'input(' and ')' #? 2
+    Finally, all the code is now inside main() function with the arguments of *testTaskInputData list. This function returns answer of the code and all the iteration counting variables #? 3
+    ''' 
+    def parse(self, code): #TODO PLEASE THIS WON'T EVEN WORK PROPERLY, NEEDS TO BE CHANGED COMPLETELY, cause it will work like n ** 2 + n instead of n ** 2 
+        #? On the other hand - I'm going to write those code examples with data and marks will be given, depending only on my result, so this function will work correctly most of the time 
+        printStatementFound = False                                                                             #? 1
+        inputCounter = 0
+        for index, line in enumerate(reversed(code)):
+            line.ljust(1, '\t')                                                                                 #? 3
+            for variable, iterator in self.iterators.items():                                                   #? 0
+                if iterator in line:                                                                            #? 0
+                    code.insert(len(code) - index + 1, f'{variable} += 1'.ljust(line.count('\t') + 1, '\t'))    #? 0
+            if (not printStatementFound) and ("print(" in line):                                                #? 1 
+                line = line.replace('print', 'answerToTestTask = ', 1)                                          #? 1
+            if 'input(' in line:                                                                                #? 2
+                line = line.replace('input(', f'testTaskInputData[{inputCounter}]')                             #? 2
+                line = line.replace(')', '', 1)                                                                 #? 2
+                inputCounter += 1                                                                               #? 2
+        code.insert(0, 'def main(*testTaskInputData):')                                                         #? 3
+        for variable, iterator in self.iterators.items():                                                       #? 0
+            code.insert(1, f'{variable} = 0')                                                                   #? 0
+        returner = 'return answerToTestTask, '                                                                  #? 3
+        for variable in self.iterators.keys():                                                                  #? 3
+            returner += f'{variable}, '                                                                         #? 3
+        code.append(returner)                                                                                   #? 3
+        return code
+                
+

@@ -6,6 +6,7 @@ from ..db_control.assessmentController import get_assessment
 class Tester():
     def __init__(self) -> None:
         self.marks = []
+        self.marks_distribution = ['S', 'A', 'B', 'C', 'D']
         with open('parse_mode.json', 'r') as file:
             self.iterators = load(file)
 
@@ -21,13 +22,41 @@ class Tester():
             code = file.read().splitlines()
             file.write(self.parse(code))
         self.marks = []
+        main_mark_list = []
         from ...userData.currentCode import main
-        for _, testData in self.assessmentData.items():
+        super_mark = False
+        for testData in self.assessmentData.values():
             answer, loopIterations, conditionIterations = main(testData["input"]) 
             if answer == testData["output"]:
-                
+                index_loop = 4
+                while loopIterations <= testData['loop'][index_loop] and index_loop >= 0:
+                    index_loop -= 1
+                index_condition = 4
+                while conditionIterations <= testData['condition'][index_condition] and index_condition >= 0:
+                    index_condition -= 1
+                self.marks.append([self.marks_distribution[index_loop], self.marks_distribution[index_condition]]) 
+                main_mark_list.append([index_loop, index_condition])               
             else:
                 self.marks.append(['F', 'F'])
+                main_mark_list.append([100000, 100000])
+        main_mark = [sum(i[0] for i in main_mark_list) / len(main_mark_list), sum(i[1] for i in main_mark_list) / len(main_mark_list)]
+        for i, mark in enumerate(main_mark):
+            if mark < 1:
+                main_mark[i] = 'S'
+            elif mark == 1:
+                main_mark[i] = 'A'
+            elif 1 < mark <= 2:
+                main_mark[i] = 'B'
+            elif 2 < mark <= 3:
+                main_mark[i] = 'C'
+            elif 3 < mark <= 4:
+                main_mark[i] = 'C'
+            elif mark > 4:
+                main_mark[i] = 'F'
+        return main_mark, self.marks
+            
+        
+        
                 
 
 

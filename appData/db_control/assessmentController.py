@@ -33,14 +33,22 @@ def get_assessment(taskID) -> dict: #tskID is ID of the exersize, not of the tes
             "output": "",
             "visible": True, #? or False
             "group": "",
-            "Loop": [
-                best algorythm iterations,          #? 0
-                efficient algorythm iterations,     #? 1
-                normal efficiency algorythm         #? 2
+            "loop": [
+                very efficient algorythm iterations,    #? 0
+                efficient algorythm iterations,         #? 1
+                normal efficiency algorythm,            #? 2
+                low efficiency algorythm                #? 3
+            ],
+            "condition": [
+                very efficient algorythm iterations,    #? 0
+                efficient algorythm iterations,         #? 1
+                normal efficiency algorythm,            #? 2
+                low efficiency algorythm                #? 3
             ]
         }
     }
     ----------------------------------------------------------
-    So, everything less than 0 is S, between 0 and 1 is A...
-    ...more than 2 is D
+    So, everything less than 0 is S, between 0 and 1 is A, 
+    between 1 and 2 is B, between 2 and 3 is C,
+    more than 3 is D
     '''

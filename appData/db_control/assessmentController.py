@@ -1,27 +1,4 @@
-''' 
-Assessment table columns:
-
-Column Name | Data Type | Description
-------------|-----------|---------------------------------------------------------
-testID      | TINYINT   | id (order) of the test task
-input       | VARCHAR   | input data
-output      | VARCHAR   | right output data, answer of the task
-visible     | BOOLEAN   | if True can be shown to user
-group       | TINYINT   | which type of input data this is (which group it consists to)
-==================================================================================
-Loop / cycle efficiency columns, all INTEGER type with number of iterations inside them. 
-Condition efficiency columns (the same as loop) #? Don't really know if I gonna do that
-P.S. Letter = Column Name,  Color = color, displayed for user with the mark itself, L = light
-----------------------------------------------------------------------------------
-Letter | Color  | Description
-----------------------------------------------------------------------------------
-   S   | LBlue  | For the best result, better then what my code did
-   A   | LGreen | Very efficient algorithm
-   B   | Green  | Efficient algorithm
-   C   | Yellow | Normal efficiency algorythm
-   D   | Orange | Low efficiency algorythm
-   F   | Red    | Wrong answer
-'''
+import sqlite3 as sql
 
 def get_assessment(taskID) -> dict: #tskID is ID of the exersize, not of the test task
     '''

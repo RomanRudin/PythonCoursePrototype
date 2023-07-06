@@ -15,12 +15,6 @@ def get_assessment(taskID) -> dict: #tskID is ID of the exersize, not of the tes
                 efficient algorythm iterations,         #? 1
                 normal efficiency algorythm,            #? 2
                 low efficiency algorythm                #? 3
-            ],
-            "condition": [
-                very efficient algorythm iterations,    #? 0
-                efficient algorythm iterations,         #? 1
-                normal efficiency algorythm,            #? 2
-                low efficiency algorythm                #? 3
             ]
         }
     }

@@ -17,42 +17,41 @@ class Tester():
     
 
     #returns marks of the effficiency of the programm + final mark
+    #TODO make it possible to have multiple efficiency tester marks
     def get_efficiency(self) -> tuple: # -> list, str
-        with open('.../userData/currentCode.py', 'rw') as file:
+        with open('.../userData/currentCode.py', 'r') as file:
             code = file.read().splitlines()
+        with open('.../userData/currentCode.py', 'w') as file:
             file.write(self.parse(code))
         self.marks = []
         main_mark_list = []
         from ...userData.currentCode import main
-        super_mark = False
         for testData in self.assessmentData.values():
-            answer, loopIterations, conditionIterations = main(testData["input"]) 
+            answer, loopIterations = main(testData["input"]) 
             if answer == testData["output"]:
                 index_loop = 4
                 while loopIterations <= testData['loop'][index_loop] and index_loop >= 0:
                     index_loop -= 1
-                index_condition = 4
-                while conditionIterations <= testData['condition'][index_condition] and index_condition >= 0:
-                    index_condition -= 1
-                self.marks.append([self.marks_distribution[index_loop], self.marks_distribution[index_condition]]) 
-                main_mark_list.append([index_loop, index_condition])               
+                self.marks.append(self.marks_distribution[index_loop]) 
+                main_mark_list.append(index_loop)               
             else:
-                self.marks.append(['F', 'F'])
+                self.marks.append('F')
                 main_mark_list.append([100000, 100000])
-        main_mark = [sum(i[0] for i in main_mark_list) / len(main_mark_list), sum(i[1] for i in main_mark_list) / len(main_mark_list)]
-        for i, mark in enumerate(main_mark):
+        main_mark = sum(i for i in main_mark_list) / len(main_mark_list)
+        for mark in main_mark:
             if mark < 1:
-                main_mark[i] = 'S'
+                main_mark = 'S'
             elif mark == 1:
-                main_mark[i] = 'A'
+                main_mark = 'A'
             elif 1 < mark <= 2:
-                main_mark[i] = 'B'
+                main_mark = 'B'
             elif 2 < mark <= 3:
-                main_mark[i] = 'C'
+                main_mark = 'C'
             elif 3 < mark <= 4:
-                main_mark[i] = 'C'
+                main_mark = 'D'
             elif mark > 4:
-                main_mark[i] = 'F'
+                main_mark = 'E'
+        
         return main_mark, self.marks
             
         
@@ -92,6 +91,6 @@ class Tester():
         for variable in self.iterators.keys():                                                                  #? 3
             returner += f'{variable}, '                                                                         #? 3
         code.append(returner)                                                                                   #? 3
-        return code
+        return '\n'.join(code)
                 
 

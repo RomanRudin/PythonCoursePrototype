@@ -50,7 +50,7 @@ testID      | 9 sym VARCHAR | id with the format of themeID.taskID.testID (ex. 1
 input       |    VARCHAR    | input data
 output      |    VARCHAR    | right output data, answer of the task
 visible     |    BOOLEAN    | if True can be shown to user
-group       |    VARCHAR    | which type of input data this is (which group it consists to)
+testGroup       |    VARCHAR    | which type of input data this is (which testGroup it consists to)
 loop columns|    VARCHAR    | difficulty, given by testing programm to my algorythms 
 markLoop    | 1 sym VARCHAR | user's saved mark of the test for loop efficiency
 PRIMARY KEY = testID
@@ -95,6 +95,7 @@ class AdminController:
          - theme is a themeNmae of the theme you add new theory article to
          - order is a theoryID (order) of this article
          - filePath is a path to the file to read info from:
+                default is 'adminControllerFolder/theory_data.txt'
             = thoeryName is the first line of file
             = theoryText is in all other lines of file
     '''
@@ -104,6 +105,7 @@ class AdminController:
          - theme is a themeNmae of the theme you add new task to
          - order is a taskID (order) of this task
          - filePath is a path to the file to read info from:
+                default is 'adminControllerFolder/theory_data.txt'
             = taskName, description, inputFormat, outputFormat are all in one file,
                 separated of each other by pip symbol (|) at the end of the line
     '''
@@ -112,6 +114,7 @@ class AdminController:
         Adds tests to Assessment TABLE into given task. 
          - inputDataFile is a path to a text file woth the list of inputs to the 
                 scripts to get answers of my programms to. 
+                default is 'adminControllerFolder/theory_data.txt'
             = semicolon symbol (;) needs to be used for splitting different tests, so
                 they can have multiple lines 
             = double pipe symbol (||) needs to be used for getting special group to test

@@ -13,27 +13,28 @@ class adminPanel(QWidget):
         self.navPanel = NavPanel(db_name)
         mainLayout.addWidget(self.navPanel)
 
-        self.dangerZoneLayout = QHBoxLayout()
+        dangerZoneLayout = QHBoxLayout()
         self.destroyButton = QPushButton("DESTROY")
+        self.destroyButton.setDisabled(True)
         self.destroyButton.clicked.connect(self.controller.destroy)
-        self.dangerZoneLayout.addWidget(self.destroyButton)
+        dangerZoneLayout.addWidget(self.destroyButton)
         self.backupButton = QPushButton('BACKUP')
         self.backupButton.clicked.connect(self.controller.backup)
-        self.dangerZoneLayout.addWidget(self.backupButton)
+        dangerZoneLayout.addWidget(self.backupButton)
         self.createButton = QPushButton('RECREATE')
+        self.destroyButton.setDisabled(True)
         self.createButton.clicked.connect(self.controller.create)
-        self.dangerZoneLayout.addWidget(self.createButton)
-
+        dangerZoneLayout.addWidget(self.createButton)
+        mainLayout.addLayout(dangerZoneLayout)
 
         self.workspace = Workscpace(db_name)
         mainLayout.addWidget(self.workspace)
 
-        self.navPanel.__create_link(self.workspace)
-        self.workspace.__create_link(self.navPanel)
+        self.navPanel._NavPanel__create_link(self.workspace)
+        self.workspace._Workscpace__create_link(self.navPanel)
 
         self.setLayout(mainLayout)
-
-
+    
 
 
 
@@ -118,11 +119,12 @@ class NavPart(QWidget):
 
     def update(self, parentID):
         items = self.infoLoader.primary_key_getting(self.table, parentID)
+        print(items)
         if len(items) > 0:
-            print(items)
             self.list.addItems(items)
             self.button.setDisabled(False)
         else:
+            print('len is 0!')
             self.clear()
             self.button.setDisabled(False)
 
@@ -134,8 +136,8 @@ class Workscpace(QWidget):
         super().__init__()
         self.controller = AdminController(db_name)
         self.construction = {}
-        self.rowID = ''
-        self.table = ''
+        self.rowID = 'Test'
+        self.table = 'Block'
         self.name = ''
 
         self.mainLayout = QVBoxLayout()
@@ -146,12 +148,12 @@ class Workscpace(QWidget):
         self.buttonLayout = QHBoxLayout()
 
         self.saveButton = QPushButton('Save')
-        self.saveButton.clicked.connect(self.save_row())
+        self.saveButton.clicked.connect(self.save_row)
         self.saveButton.setDisabled(True)
         self.buttonLayout.addWidget(self.saveButton)
 
         self.deleteButton = QPushButton('Delete')
-        self.saveButton.clicked.connect(self.delete_row())
+        self.saveButton.clicked.connect(self.delete_row)
         self.saveButton.setDisabled(True)
         self.buttonLayout.addWidget(self.saveButton)
 
@@ -303,7 +305,7 @@ class Workscpace(QWidget):
 
     def open_row(self, table, rowID):
         self.clear()
-        data = self.controller.show()
+        data = self.controller.show(table, rowID)
         self.__construct(table, data)
         self.rowID = rowID
         self.table = table

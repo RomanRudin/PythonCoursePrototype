@@ -158,6 +158,7 @@ class AdminController():
 
 
     def change_data(self, table: str, id: str, columns:dict) -> None:
+        print('!!!!!!!!!!!!!!!')
         primaryKey = self.__id_column_name_getting(table)
         try:
             for column, data in columns.items():
@@ -264,13 +265,12 @@ class AdminInfoGetter():
     
 
     def primary_key_getting(self, table:str, parentID='') -> list:
-        rows = self.cursor.execute("PRAGMA primary_key_list({})".format(self.__sql_identifying(table)))
-        primaryKeys = list(rows.fetchall())
+        primaryKeys = [i[0] for i in self.cursor.execute(f'SELECT * FROM {table}').fetchall() if not i[0] is None]
         #Block TABLE doesn't have any parentID's, so....
         if table == 'Block':
             return primaryKeys
         #Other table's elements need parentIDs to be displayed
-        rows = self.cursor.execute("PRAGMA foreign_key_list({})".format(self.sql_identifying(table)))
+        rows = self.cursor.execute("PRAGMA foreign_key_list({})".format(self.__sql_identifying(table)))
         foreignKeys = list(rows.fetchall())
         result = []
         for primary, foreign in zip(primaryKeys, foreignKeys):

@@ -9,6 +9,7 @@ if __name__ == "__main__":
         controller = AdminController('db.sqlite3')
         #Yout code
         #Yout code
+        #Yout code
 
     elif mode == 'app':
         app = QApplication([argv]) 

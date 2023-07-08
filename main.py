@@ -1,14 +1,10 @@
 from appData.graphics.mainWindow import MainWindow
-from pythonVersionSpecified import CMDController
 from PyQt5.QtWidgets import QApplication
 from sys import argv, exit
-from appData.db_control.administrationController import AdminController
 
 git_repo = ''
 
 if __name__ == "__main__":
-    controller = AdminController('db.sqlite3')
-    controller.add_theory('2', 'Test1', 'TESTESTEST')
     # try:
     #     controller = CMDController()
     #     controller.pull(git_repo)
@@ -22,3 +18,4 @@ if __name__ == "__main__":
     # except Exception as e:
     #     with open('logs/debug_log.txt', 'w') as file:
     #         file.write(str(e))
+    pass

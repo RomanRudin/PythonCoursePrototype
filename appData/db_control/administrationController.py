@@ -3,23 +3,45 @@ from os import path
 from datetime import datetime
 from ..testing_programm.testingProgramm import Tester
 
+
+#! NEEDS TO BE CHANGED AFTER EVERY DB RECONFIGURATION
+TABLES_DEPENDENCY = {
+    'Block': ['Theme'],
+    'Theme': ['Task', 'Theory'],
+    'Task': ['Test'],
+    'Theory': '',
+    'test': ''
+}
+TABLES_ORDER = ['Block', 'Theme','Theory','Task','Test']
+TABLES_PRIMARY_KEYS = ['blockName', 'themeName', 'theoryName', 'taskName', 'testID']
+
+
 class AdminController():
-    def __init__(self, db_name) -> None:
+    def __init__(self, db_name: str) -> None:
         self.file_path = path.dirname(path.abspath(__file__))
         db_path = self.file_path.replace('\db_control', '')
         self.con = sql.connect(path.join(db_path, db_name))
         self.cursor = self.con.cursor()
 
-    def save(self):
+    def save(self) -> None:
         self.con.commit()
 
-    def __get_themeID(self, themeName) -> str:
+
+    def __get_themeID(self, themeName: str) -> str:
         return str(self.cursor.execute('SELECT themeID FROM Themes WHERE themeName=?', [themeName]))
 
-    def __get_taskID(self, taskName) -> str:
-        return str(self.cursor.execute('SELECT taskID FROM Practise WHERE taskName=?', [taskName]))
 
-    def destroy(self):
+    def __get_taskID(self, taskName: str) -> str:
+        return str(self.cursor.execute('SELECT taskID FROM Tasks WHERE taskName=?', [taskName]))
+
+
+    def __id_column_name_getting(self, table: str) -> list:
+        self.cursor.execute("SELECT * FROM ?", [table])
+        primaryKey = [description[0] for description in self.cursor.description if description[0] in TABLES_PRIMARY_KEYS]
+        return primaryKey[0]
+
+
+    def destroy(self) -> None:
         self.backup()
         self.cursor.execute("PRAGMA writable_schema = 1")
         self.cursor.execute("DELETE FROM sqlite_master WHERE type IN ('table', 'index', 'trigger')")
@@ -27,30 +49,39 @@ class AdminController():
         self.create()
 
 
-    def delete(self, table, id={}):
+    def delete(self, table: str, id: str) -> None:
+        primaryKey = self.__id_column_name_getting(table)
         self.cursor.execute('''
             DELETE FROM ? WHERE ? = ?
-        ''', [table, id])
+        ''', [table,primaryKey, id])
         self.save()
 
 
-    def backup(self):
+    def backup(self) -> None:
         backup_name = str(datetime.now())[:-7].replace('-', '_').replace(' ', '_').replace(':', '-')
         bck = sql.connect(path.join(self.file_path, 'db_backups', f'{backup_name}.sqlite3'))
         with bck:
             self.con.backup(bck, pages=1)
         bck.close()
-    
 
-    def add_theme(self, order, name, description=''):
+
+    def add_block(self, name: str, description: str) -> None:
         self.cursor.execute('''
-            INSERT INTO Themes (themeID, themeName, description)
-            VALUES (?, ?, ?)
-        ''', [order, name, description])
+            INSERT INTO Block (blockName, description)
+            VALUES (?, ?)
+        ''', [name, description])
         self.save()
 
 
-    def add_theory(self, theme, order, filePath='adminControllerFolder/theory_data.txt'):
+    def add_theme(self, order: int, name: str, blockName: str, description='') -> None:
+        self.cursor.execute('''
+            INSERT INTO Themes (themeID, themeName, blockName, description)
+            VALUES (?, ?, ?)
+        ''', [order, name, blockName, description])
+        self.save()
+
+
+    def add_theory(self, theme: str, order: int, filePath='adminControllerFolder/theory_data.txt') -> None:
         theoryID = f'{self.__get_themeID(theme)}.{str(order)}'
         with open(str(filePath), 'r', encoding='utf-8') as file:
             theoryName = file.readline()
@@ -62,18 +93,18 @@ class AdminController():
         self.save()
 
 
-    def add_task(self, theme, order, filePath='adminControllerFolder/task_data.txt'):
+    def add_task(self, theme: str, order: int, filePath='adminControllerFolder/task_data.txt') -> None:
         taskID = f'{self.__get_themeID(theme)}.{str(order)}'
         with open(filePath, 'r', encoding='utf-8') as file:
             taskName, description, inputFormat, outputFormat = file.read().split('|\n')
         self.cursor.execute('''
-            INSERT INTO Practise (taskName, taskID, themeName, description, inputFormat, outputFormat)
+            INSERT INTO Tasks (taskName, taskID, themeName, description, inputFormat, outputFormat)
             VALUES (?, ?, ?, ?, ?, )
         ''', [taskName, taskID, theme, description, inputFormat, outputFormat])
         self.save()
 
 
-    def add_tests(self, task, inputDataFile='adminControllerFolder/tests_data.txt', visibleTests=[0], *inputDataList):
+    def add_tests(self, task: str, inputDataFile='adminControllerFolder/tests_data.txt', visibleTests=[0], *inputDataList) -> None:
         tester = Tester()
         scripts = ['AB', 'BD', 'CD', 'D']
         for path in scripts:
@@ -126,23 +157,50 @@ class AdminController():
         #TODO Make script for running given programms with given data or with data from inputDataFile and writing it to db
 
 
-    def change_data(self, table, id, **columns):
-        for column, data in columns.items():
+    def change_data(self, table: str, id: str, columns:dict) -> None:
+        primaryKey = self.__id_column_name_getting(table)
+        try:
+            for column, data in columns.items():
+                self.cursor.execute('''
+                    UPDATE ? SET ?=? WHERE ?=?
+                ''', [table, column, data, primaryKey, id])
+                self.save()
+        except sql.OperationalError:
             self.cursor.execute('''
-
-            ''', [table, id, column, data])
+                INSERT INTO ? (?) VALUES (?)
+            ''', [table, column, data])
             self.save()
 
 
-    def create(self):
+    def show(self, table: str, id: str) -> list:
+        primaryKey = self.__id_column_name_getting(table)
+        return list(self.cursor.execute('''
+            SELECT * FROM ? WHERE ?=?
+        ''', [table, primaryKey,  id]).fetchall())
+
+
+
+    def create(self) -> None:
+        self.cursor.execute('''
+        CREATE TABLE IF NOT EXISTS Block (
+                blockName VARCHAR(255) NOT NULL,
+                description TEXT,
+                markLoop VARCHAR(1),
+
+                PRIMARY KEY (blockName)
+            )
+        ''')
+
         self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS Themes (
                 themeID INT NOT NULL,
                 themeName VARCHAR(255) NOT NULL,
+                blockName VARCHAR(255) NOT NULL,
                 description TEXT,
                 markLoop VARCHAR(1),
 
-                PRIMARY KEY (themeName)
+                PRIMARY KEY (themeName),
+                FOREIGN KEY (blockName) REFERENCES Block(blockName)
             )
         ''')
 
@@ -159,7 +217,7 @@ class AdminController():
         ''')
 
         self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS Practise (
+            CREATE TABLE IF NOT EXISTS Tasks (
                 taskName VARCHAR(255) NOT NULL,
                 taskID VARCHAR(5) NOT NULL,
                 themeName VARCHAR(255) NOT NULL,
@@ -188,6 +246,39 @@ class AdminController():
                 markLoop VARCHAR(1),
 
                 PRIMARY KEY (taskID),
-                FOREIGN KEY (taskName) REFERENCES Practise(taskName)
+                FOREIGN KEY (taskName) REFERENCES Tasks(taskName)
             )
         ''')
+
+
+class AdminInfoGetter():
+    def __init__(self, db_name: str) -> None:
+        self.file_path = path.dirname(path.abspath(__file__))
+        db_path = self.file_path.replace('\db_control', '')
+        self.con = sql.connect(path.join(db_path, db_name))
+        self.cursor = self.con.cursor()
+
+
+    def __sql_identifying(self, string:str) -> str:
+        return '"' + string.replace('"', '""') + '"'
+    
+
+    def primary_key_getting(self, table:str, parentID='') -> list:
+        rows = self.cursor.execute("PRAGMA primary_key_list({})".format(self.__sql_identifying(table)))
+        primaryKeys = list(rows.fetchall())
+        #Block TABLE doesn't have any parentID's, so....
+        if table == 'Block':
+            return primaryKeys
+        #Other table's elements need parentIDs to be displayed
+        rows = self.cursor.execute("PRAGMA foreign_key_list({})".format(self.sql_identifying(table)))
+        foreignKeys = list(rows.fetchall())
+        result = []
+        for primary, foreign in zip(primaryKeys, foreignKeys):
+            if str(foreign) == parentID:
+                result.append(primary)
+        return result
+
+
+    def table_names_getting(self) -> list:
+        result = self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+        return [str(name[0]) for name in result]

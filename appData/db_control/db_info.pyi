@@ -1,14 +1,28 @@
 '''
 ============================| DATABASE STRUCTURE |====================================
+
+Block TABLE columns:
+
+Column Name |   Data Type   | Description
+------------|---------------|---------------------------------------------------------
+blockName   |    VARCHAR    | Name of the theme
+description |     TEXT      | description of the theme of the course
+markLoop    | 1 sym VARCHAR | user's saved mark of the whole theme for loop efficiency
+PRIMARY KEY = blockName
+======================================================================================
+
+-
 Themes TABLE columns:
 
 Column Name |   Data Type   | Description
 ------------|---------------|---------------------------------------------------------
 themeID     |   small INT   | id (order) of the theme
 themeName   |    VARCHAR    | Name of the theme
+blockName   |    VARCHAR    | Name of the block theme is related to 
 description |     TEXT      | description of the theme of the course
 markLoop    | 1 sym VARCHAR | user's saved mark of the whole theme for loop efficiency
 PRIMARY KEY = themeName
+REFERENCES: blockName to Block TABLE
 ======================================================================================
 
 
@@ -74,6 +88,10 @@ class AdminController:
         Drops an old DB and creates a new one
     '''
 
+    def save() -> None: '''
+        Commits changes of the DB
+    '''
+
     def delete(self, table: str, id: str) -> None: '''
         Deletes row in given table and id
          - id is a PRIMARY KEY of given table
@@ -82,11 +100,16 @@ class AdminController:
     def create(self) -> None: '''
         Creates all the tables, that were described before
     '''
+    
+    def add_block(self, name: str, description: str) -> None: '''
+        Adds block of themes
+    '''
 
-    def add_theme(self, order: int, name: str, description: str) -> None: '''
+    def add_theme(self, order: int, name: str, blockName:str, description: str) -> None: '''
         Adds theme
          - order is a themeID
          - name is a themeName
+         - blovkName is a name of the block theme is connected to
          - description is a description 
     '''
 
@@ -121,7 +144,34 @@ class AdminController:
          - *inputData is a list of inputs to the scriptsto get answers of my programms to
     '''
 
-    def change_data(self, table: str, id: str, **columns): '''
-        Changes data to given in given table, row. ***columns must have a format of:
+    def change_data(self, table: str, id: str, columns:dict): '''
+        Changes data to given in given table, row. *columns must have a format of:
         {columnName: newData}
+    '''
+
+    def show(self, table, id) -> list: '''
+        Returns row of the table with the primary key == id
+         - table is a table where search is going on
+         - id is an identificator of the row (primary key) to look for row
+    '''
+
+
+
+class AdminInfoGetter(): #gives info about tables and row. Used in NavBar in adminWindow
+    def sql_identifying(self, string:str) -> str: '''
+        String formatter for good selection and fetching
+    '''
+    
+
+    def primary_key_getting(self, table:str, parentID='') -> list:'''
+        If table is not the highest in Tables hierarchy (in this version - if it is not 
+            'Block' table) returns all the primary keys of the rows, taht were referencing
+            to parentID primary key in parent table. Else just returns all the primary keys.
+             - table is a table primary keys from which programm needs
+             - parentID is a primary key of the parent table chosen by user
+    '''
+
+
+    def table_names_getting(self) -> list:'''
+        returns list of all the existsing tables names
     '''

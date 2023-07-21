@@ -6,11 +6,12 @@ from ..testing_programm.testingProgramm import Tester
 
 #! NEEDS TO BE CHANGED AFTER EVERY DB RECONFIGURATION
 TABLES_DEPENDENCY = {
+    'Preblock': ['Block'], #clutch, needs to be chaged
     'Block': ['Theme'],
     'Theme': ['Task', 'Theory'],
     'Task': ['Test'],
     'Theory': '',
-    'test': ''
+    'Test': ''
 }
 TABLES_ORDER = ['Block', 'Theme','Theory','Task','Test']
 TABLES_PRIMARY_KEYS = ['blockName', 'themeName', 'theoryName', 'taskName', 'testID']
@@ -36,7 +37,7 @@ class AdminController():
 
 
     def __id_column_name_getting(self, table: str) -> list:
-        self.cursor.execute("SELECT * FROM ?", [table])
+        self.cursor.execute("SELECT * FROM " + str(table))
         primaryKey = [description[0] for description in self.cursor.description if description[0] in TABLES_PRIMARY_KEYS]
         return primaryKey[0]
 
@@ -51,9 +52,8 @@ class AdminController():
 
     def delete(self, table: str, id: str) -> None:
         primaryKey = self.__id_column_name_getting(table)
-        self.cursor.execute('''
-            DELETE FROM ? WHERE ? = ?
-        ''', [table,primaryKey, id])
+        self.cursor.execute('DELETE FROM ' + str(table) + \
+            ' WHERE ' + str(primaryKey) + ' = ?', [id])
         self.save()
 
 
@@ -158,32 +158,30 @@ class AdminController():
 
 
     def change_data(self, table: str, id: str, columns:dict) -> None:
-        print('!!!!!!!!!!!!!!!')
         primaryKey = self.__id_column_name_getting(table)
-        try:
-            for column, data in columns.items():
-                self.cursor.execute('''
-                    UPDATE ? SET ?=? WHERE ?=?
-                ''', [table, column, data, primaryKey, id])
-                self.save()
-        except sql.OperationalError:
-            self.cursor.execute('''
-                INSERT INTO ? (?) VALUES (?)
-            ''', [table, column, data])
+        if not self.show(table, id):
+            self.cursor.execute('INSERT INTO ' + str(table) + ' (' + str(primaryKey) +\
+                ') VALUES (?)', [id])
             self.save()
-
+        for column, data in columns.items():
+            self.cursor.execute('UPDATE ' + str(table) + ' SET ' \
+                + str(column) + '=? WHERE ' + str(primaryKey) + '=?', [data, id])
+            self.save()
+    
 
     def show(self, table: str, id: str) -> list:
         primaryKey = self.__id_column_name_getting(table)
-        return list(self.cursor.execute('''
-            SELECT * FROM ? WHERE ?=?
-        ''', [table, primaryKey,  id]).fetchall())
+        data = self.cursor.execute('SELECT * FROM ' + str(table) + \
+            ' WHERE ' + str(primaryKey) + '=?', [id]).fetchall()
+        return data[0] if data != [] else []
+            
+        #result = [line for line in data if lin]
 
 
 
     def create(self) -> None:
         self.cursor.execute('''
-        CREATE TABLE IF NOT EXISTS Block (
+        CREATE TABLE Block (
                 blockName VARCHAR(255) NOT NULL,
                 description TEXT,
                 markLoop VARCHAR(1),
@@ -193,7 +191,7 @@ class AdminController():
         ''')
 
         self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS Themes (
+            CREATE TABLE Theme (
                 themeID INT NOT NULL,
                 themeName VARCHAR(255) NOT NULL,
                 blockName VARCHAR(255) NOT NULL,
@@ -206,7 +204,7 @@ class AdminController():
         ''')
 
         self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS Theory (
+            CREATE TABLE Theory (
                 theoryName VARCHAR(255) NOT NULL,
                 theoryID VARCHAR(5) NOT NULL,
                 themeName VARCHAR(255) NOT NULL,
@@ -218,7 +216,7 @@ class AdminController():
         ''')
 
         self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS Tasks (
+            CREATE TABLE Task (
                 taskName VARCHAR(255) NOT NULL,
                 taskID VARCHAR(5) NOT NULL,
                 themeName VARCHAR(255) NOT NULL,
@@ -233,7 +231,7 @@ class AdminController():
         ''')
 
         self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS Assessment (
+            CREATE TABLE Test (
                 taskName VARCHAR(255) NOT NULL,
                 taskID VARCHAR(9) NOT NULL,
                 input VARCHAR(255),

@@ -7,9 +7,9 @@ mode = 'app' # 'cmd' or 'app'
 if __name__ == "__main__":
     if mode == 'cmd':
         controller = AdminController('db.sqlite3')
-        #Yout code
-        #Yout code
-        #Yout code
+        controller.add_block('test1', '1')
+        controller.add_block('test2', '2')
+        controller.add_block('test3', '3')
 
     elif mode == 'app':
         app = QApplication([argv]) 

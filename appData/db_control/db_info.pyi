@@ -55,7 +55,7 @@ REFERENCES: themeName to Themes TABLE
 ======================================================================================
 
 
-Assessment table columns:
+Assessment TABLE columns:
 
 Column Name |   Data Type   | Description
 ------------|---------------|---------------------------------------------------------

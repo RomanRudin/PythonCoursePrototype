@@ -39,7 +39,7 @@ REFERENCES: themeName to Themes TABLE
 ======================================================================================
 
 
-Practise TABLE columns:
+Task TABLE columns:
 
 Column Name |   Data Type   | Description
 ------------|---------------|---------------------------------------------------------
@@ -55,7 +55,7 @@ REFERENCES: themeName to Themes TABLE
 ======================================================================================
 
 
-Assessment TABLE columns:
+Test TABLE columns:
 
 Column Name |   Data Type   | Description
 ------------|---------------|---------------------------------------------------------
@@ -173,5 +173,40 @@ class AdminInfoGetter(): #gives info about tables and row. Used in NavBar in adm
 
 
     def table_names_getting(self) -> list:'''
-        returns list of all the existsing tables names
+        Returns list of all the existsing tables names
+    '''
+
+class MainController:
+    def get_blocks(self) -> list:'''
+        Returns list of all the blocks in course
+    '''
+
+
+    def get_themes(self, block) -> list:'''
+        Returns list of all the themes related to given block
+    '''
+
+
+    def get_theories_and_tasks(self, theme) -> list:'''
+        Returns list of all the tasks and theory pages related to given theme
+    '''
+
+
+    def set_block(self, block) -> list:'''
+        Returns all the information about the block (description and mark)
+    '''
+
+
+    def set_theme(self, theme) -> list:'''
+        Returns all the information about the theme (description and mark)
+    '''
+
+
+    def set_theory(self, theory) -> list:'''
+        Returns all the theoretical information, given by theory page
+    '''
+
+
+    def set_task(self, task) -> list:'''
+        Returns all the information, given by task page
     '''

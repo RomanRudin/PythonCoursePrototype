@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QListWidget, QPushButton, QLabel
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QListWidget, QPushButton, QLabel, QTextEdit
 from ..db_control.mainController import MainController
 
 class MainWindow(QWidget):
@@ -33,16 +33,21 @@ class MainWindow(QWidget):
     def block_clicked(self):
         block = self.block_list.selectedItems()[0].text() 
         self.theme_list.clear()
+        self.__clear_content()
+        self.content.addWidget(self.controller.set_block(block))
 
 
 
     def theme_clicked(self):
-        block = self.theme_list.selectedItems()[0].text() 
+        theme = self.theme_list.selectedItems()[0].text() 
         self.task_and_theory_list.clear()
+        self.__clear_content()
+        self.content.addWidget(self.controller.set_theme(theme))
 
 
     def theory_and_task_determinant(self):
         determinant = self.task_and_theory_list.selectedItems()[0].text() 
+        self.__clear_content()
         match determinant[:4]:
             case '[Th]':
                 self.theory_clicked(determinant[4:])
@@ -53,57 +58,113 @@ class MainWindow(QWidget):
         
 
     def theory_clicked(self, theory):
-        pass
-    
+        self.content.addWidget(self.controller.set_theory(theory))
+
 
     def task_clicked(self, task):
-        pass
+        self.content.addWidget(self.controller.set_task(task))
 
 
-    def clear_Content(self):
-        self.__delete_items_of_layout(self.content)
-
-
-
-    def __delete_items_of_layout(self, layout) -> None:
-        if layout is not None:
-            while layout.count():
-                item = layout.takeAt(0)
-                widget = item.widget()
-                if widget is not None:
-                    widget.setParent(None)
-                else:
-                    self.__delete_items_of_layout(item.layout())
+    def __clear_content(self):
+        for child in self.content.children():
+            self.content.removeWidget(child)
+            child.deleteLater()
+            child = None
     
 
 
 class ContentBlock(QWidget):
-    def __init__(self) -> None:
+    def __init__(self, *args) -> None:
         super().__init__()
+        name, description, mark = args
+
         main_layout = QVBoxLayout()
+        info_layout = QHBoxLayout()
+
+        info_layout.addWidget(QLabel(name))
+        info_layout.addWidget(QLabel(mark))
+
+        main_layout.addLayout(info_layout)
+        main_layout.addWidget(QLabel(description))
+
         self.setLayout(main_layout)
     
 
 
 class ContentTheme(QWidget):
-    def __init__(self) -> None:
+    def __init__(self, *args) -> None:
         super().__init__()
+        name, id, description, mark = args
+
         main_layout = QVBoxLayout()
+        info_layout = QHBoxLayout()
+
+        info_layout.addWidget(QLabel(name))
+        info_layout.addWidget(QLabel(id))
+        info_layout.addWidget(QLabel(mark))
+
+        main_layout.addLayout(info_layout)
+        main_layout.addWidget(QLabel(description))
+
         self.setLayout(main_layout)
     
 
 
 class ContentTheory(QWidget):
-    def __init__(self) -> None:
+    def __init__(self, *args) -> None:
         super().__init__()
+        name, id, text = args
+
         main_layout = QVBoxLayout()
+        info_layout = QHBoxLayout()
+
+        info_layout.addWidget(QLabel(name))
+        info_layout.addWidget(QLabel(id))
+
+        main_layout.addLayout(info_layout)
+        main_layout.addWidget(QLabel(text))
+
         self.setLayout(main_layout)
     
 
 
 class ContentTask(QWidget):
-    def __init__(self) -> None:
+    def __init__(self, *args) -> None:
         super().__init__()
+        name, id, text, inputFormat, outputFormat, mark = args
+
         main_layout = QVBoxLayout()
+        text_tests_layout = QHBoxLayout()
+        info_layout = QHBoxLayout()
+        text_layout = QHBoxLayout()
+        input_output_layout = QHBoxLayout()
+
+        self.testsList = QListWidget()
+        self.codeEdit = QTextEdit()
+        self.checkCode = QPushButton('Check')
+        self.checkCode.clicked.connect(self.send_code)
+
+        info_layout.addWidget(QLabel(name))
+        info_layout.addWidget(QLabel(id))
+        info_layout.addWidget(QLabel(mark))
+
+        input_output_layout.addWidget(QLabel(inputFormat))
+        input_output_layout.addWidget(QLabel(outputFormat))
+
+        text_layout.addWidget(QLabel(text))
+        text_layout.addLayout(input_output_layout)
+
+        text_tests_layout.addLayout(text_layout)
+        text_tests_layout.addWidget(self.testsList)
+
+        main_layout.addLayout(info_layout)
+        main_layout.addLayout(text_tests_layout)
+        main_layout.addWidget(self.codeEdit)
+        main_layout.addWidget(self.checkCode)
+
         self.setLayout(main_layout)
+
+
+    def send_code(self):
+        pass
 

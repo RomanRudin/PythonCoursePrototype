@@ -36,19 +36,23 @@ class MainController():
 
     def set_block(self, blockName):
         block = list(self.cursor.execute('SELECT * FROM Block WHERE BlockName=?', [blockName]).fetchall())
+        print([block[i] for i in (1, 2)])
         return [block[i] for i in (1, 2)]
 
 
     def set_theme(self, themeName):
         theme = list(self.cursor.execute('SELECT * FROM Theme WHERE themeName=?', [themeName]).fetchall())
-        return [theme[i] for i in (2, 3, 4)]
+        print([theme[i] for i in (1, 3, 4)])
+        return [theme[i] for i in (1, 3, 4)]
 
 
     def set_theory(self, theoryName):
         theory = list(self.cursor.execute('SELECT * FROM Theory WHERE theoryName=?', [theoryName]).fetchall())
+        print([theory[i] for i in (2, 3)])
         return [theory[i] for i in (2, 3)]
 
 
     def set_task(self, taskName):
         task = list(self.cursor.execute('SELECT * FROM Task WHERE taskName=?', [taskName]).fetchall())
+        print([task[i] for i in (3, 4, 5, 6)])
         return [task[i] for i in (3, 4, 5, 6)]

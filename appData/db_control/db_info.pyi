@@ -64,7 +64,7 @@ testID      | 9 sym VARCHAR | id with the format of themeID.taskID.testID (ex. 1
 input       |    VARCHAR    | input data
 output      |    VARCHAR    | right output data, answer of the task
 visible     |    BOOLEAN    | if True can be shown to user
-testGroup       |    VARCHAR    | which type of input data this is (which testGroup it consists to)
+testGroup   |    VARCHAR    | which type of input data this is (which testGroup it consists to)
 loop columns|    VARCHAR    | difficulty, given by testing programm to my algorythms 
 markLoop    | 1 sym VARCHAR | user's saved mark of the test for loop efficiency
 PRIMARY KEY = testID

@@ -45,8 +45,11 @@ class AdminController():
     def destroy(self) -> None:
         self.backup()
         self.cursor.execute("PRAGMA writable_schema = 1")
+        self.save()
         self.cursor.execute("DELETE FROM sqlite_master WHERE type IN ('table', 'index', 'trigger')")
+        self.save()
         self.cursor.execute("PRAGMA writable_schema = 0")
+        self.save()
         self.create()
 
 
@@ -160,13 +163,15 @@ class AdminController():
     def change_data(self, table: str, id: str, columns:dict) -> None:
         primaryKey = self.__id_column_name_getting(table)
         if not self.show(table, id):
-            self.cursor.execute('INSERT INTO ' + str(table) + ' (' + str(primaryKey) +\
-                ') VALUES (?)', [id])
+            self.cursor.execute('INSERT INTO ' + str(table) + ' (' +\
+                ', '.join([str(key) for key in columns.keys()]) +\
+                ') VALUES (' + ', '.join([str(value) for value in columns.values()]) + ')')
             self.save()
-        for column, data in columns.items():
-            self.cursor.execute('UPDATE ' + str(table) + ' SET ' \
-                + str(column) + '=? WHERE ' + str(primaryKey) + '=?', [data, id])
-            self.save()
+        else:
+            for column, data in columns.items():
+                self.cursor.execute('UPDATE ' + str(table) + ' SET ' \
+                    + str(column) + '=? WHERE ' + str(primaryKey) + '=?', [data, id])
+                self.save()
     
 
     def show(self, table: str, id: str) -> list:
@@ -192,8 +197,8 @@ class AdminController():
 
         self.cursor.execute('''
             CREATE TABLE Theme (
-                themeID INT NOT NULL,
                 themeName VARCHAR(255) NOT NULL,
+                themeID INT NOT NULL,
                 blockName VARCHAR(255) NOT NULL,
                 description TEXT,
                 markLoop VARCHAR(1),
@@ -232,8 +237,8 @@ class AdminController():
 
         self.cursor.execute('''
             CREATE TABLE Test (
-                taskName VARCHAR(255) NOT NULL,
                 taskID VARCHAR(9) NOT NULL,
+                taskName VARCHAR(255) NOT NULL,
                 input VARCHAR(255),
                 output VARCHAR(255),
                 visible BOOLEAN,
@@ -263,17 +268,12 @@ class AdminInfoGetter():
     
 
     def primary_key_getting(self, table:str, parentID='') -> list:
-        primaryKeys = [i[0] for i in self.cursor.execute(f'SELECT * FROM {table}').fetchall() if not i[0] is None]
         #Block TABLE doesn't have any parentID's, so....
         if table == 'Block':
-            return primaryKeys
+            return [i[0] for i in self.cursor.execute(f'SELECT * FROM {table}').fetchall() if not i[0] is None]
         #Other table's elements need parentIDs to be displayed
-        rows = self.cursor.execute("PRAGMA foreign_key_list({})".format(self.__sql_identifying(table)))
-        foreignKeys = list(rows.fetchall())
-        result = []
-        for primary, foreign in zip(primaryKeys, foreignKeys):
-            if str(foreign) == parentID:
-                result.append(primary)
+        foreignKey = self.cursor.execute("PRAGMA foreign_key_list({})".format(self.__sql_identifying(table))).fetchall()[0][3]
+        result = [str(i[0]) for i in self.cursor.execute(f"SELECT * FROM {table} WHERE {foreignKey}=?", [parentID])]
         return result
 
 

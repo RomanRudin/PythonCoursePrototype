@@ -131,13 +131,9 @@ class NavPart(QWidget):
 
 
     def add(self): #TODO
-        try:
-            self.navPanel.panel.clear()
-            self.navPanel.panel.construct(self.table)
-            self.navPanel.clear_following(self.table)
-        except Exception as e:
-            print(e, 'Exc')
-            raise ''
+        self.navPanel.panel.clear()
+        self.navPanel.panel.construct(self.table)
+        self.navPanel.clear_following(self.table)
 
 
     def update(self, parentID):
@@ -229,6 +225,8 @@ class Workscpace(QWidget):
                     self.name.setText(str(data[1]))
                     self.relation.setText(str(data[2]))
                     self.description.setText(str(data[3]))
+                else:
+                    self.relation.setText(self.panel.navBars[0].list.selectedItems()[0].text())
 
                 self.construction = {
                     'themeID': self.id,
@@ -260,6 +258,8 @@ class Workscpace(QWidget):
                     self.name.setText(str(data[1]))
                     self.relation.setText(str(data[2]))
                     self.text.setText(str(data[3]))
+                else:
+                    self.relation.setText(self.panel.navBars[1].list.selectedItems()[0].text())
 
                 self.construction = {
                     'theoryName': self.name,
@@ -301,6 +301,8 @@ class Workscpace(QWidget):
                     self.description.setText(str(data[3]))
                     self.input.setText(str(data[4]))
                     self.output.setText(str(data[5]))
+                else:
+                    self.relation.setText(self.panel.navBars[1].list.selectedItems()[0].text())
 
                 self.construction = {
                     'taskName': self.name,
@@ -330,19 +332,12 @@ class Workscpace(QWidget):
 
 
     def save_row(self):
-        #TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        try:
-            if self.rowID == '':
-                self.rowID = self.name.text()
-            for key, value in self.construction.items():
-                print(key, value.text())
-            self.controller.change_data(self.table, self.rowID, \
-                {key: value.text() for key, value in self.construction.items()})
-            self.panel.update(self.table, self.rowID)
-            self.__disable_buttons_and_clean_info(True)
-        except Exception as e:
-            print(e)
-            raise '' 
+        if self.rowID == '':
+            self.rowID = self.name.text()
+        self.controller.change_data(self.table, self.rowID, \
+            {key: '"' + value.text() + '"' for key, value in self.construction.items()})
+        self.panel.update(self.table, self.rowID)
+        self.__disable_buttons_and_clean_info(True)
 
 
     def delete_row(self):

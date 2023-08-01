@@ -1,14 +1,11 @@
 import sqlite3 as sql
 from os import path
 
-'''
-
-'''
 
 class MainController():
     def __init__(self, db_name) -> None:
         db_path = path.dirname(path.abspath(__file__))
-        db_path = db_path.replace('/db_control/', '')
+        db_path = db_path.replace('\db_control', '')
         self.con = sql.connect(path.join(db_path, db_name))
         self.cursor = self.con.cursor()
 
@@ -22,8 +19,10 @@ class MainController():
 
 
     def get_theories_and_tasks(self, theme):
-        info = list(self.cursor.execute('SELECT * FROM Theory WHERE themeName=?', [theme]).fetchall())
-        info.append(list(self.cursor.execute('SELECT * FROM Task WHERE themeName=?', [theme]).fetchall()))
+        info = self.cursor.execute('SELECT * FROM Theory WHERE themeName=?', [theme]).fetchall()
+        info.extend(self.cursor.execute('SELECT * FROM Task WHERE themeName=?', [theme]).fetchall())
+        if info == []:
+            return []
         info = info.sort(key= lambda page: page[1])
         extra_info = [0] * len(info)
         for index, enum in enumerate(info):
@@ -36,23 +35,19 @@ class MainController():
 
     def set_block(self, blockName):
         block = list(self.cursor.execute('SELECT * FROM Block WHERE BlockName=?', [blockName]).fetchall())
-        print([block[i] for i in (1, 2)])
-        return [block[i] for i in (1, 2)]
+        return block[0]
 
 
     def set_theme(self, themeName):
         theme = list(self.cursor.execute('SELECT * FROM Theme WHERE themeName=?', [themeName]).fetchall())
-        print([theme[i] for i in (1, 3, 4)])
-        return [theme[i] for i in (1, 3, 4)]
+        return theme[0]
 
 
     def set_theory(self, theoryName):
         theory = list(self.cursor.execute('SELECT * FROM Theory WHERE theoryName=?', [theoryName]).fetchall())
-        print([theory[i] for i in (2, 3)])
-        return [theory[i] for i in (2, 3)]
+        return theory[0]
 
 
     def set_task(self, taskName):
         task = list(self.cursor.execute('SELECT * FROM Task WHERE taskName=?', [taskName]).fetchall())
-        print([task[i] for i in (3, 4, 5, 6)])
-        return [task[i] for i in (3, 4, 5, 6)]
+        return task[0]

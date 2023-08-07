@@ -1,4 +1,4 @@
-from appData.graphics.mainWindow import MainWindow
+from appData.graphics.GUI.mainWindow import MainWindow
 from PyQt5.QtWidgets import QApplication
 from sys import argv, exit
 
@@ -9,8 +9,10 @@ if __name__ == "__main__":
         # controller = CMDController()
         # controller.pull(git_repo)
         app = QApplication([argv]) 
-        #app.setStyleSheet(stylesheet_main)
+        with open(r'appData\graphics\styles\mainWindow.qss', 'r') as file:     
+            app.setStyleSheet(file.read())  
         main = MainWindow()
+        main.setWindowTitle('Python Course')
         main.resize(1200, 800)
         main.show()        
         exit(app.exec_())

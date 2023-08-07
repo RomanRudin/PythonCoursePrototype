@@ -1,4 +1,4 @@
-from appData.graphics.adminWindow import adminPanel, AdminController
+from appData.graphics.GUI.adminWindow import adminPanel, AdminController
 from PyQt5.QtWidgets import QApplication
 from sys import argv, exit
 

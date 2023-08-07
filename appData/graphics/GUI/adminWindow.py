@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QListWidget, \
-    QPushButton, QLabel, QLineEdit, QTextEdit
-from ..db_control.administrationController import AdminController, AdminInfoGetter, \
+    QPushButton, QLabel, QLineEdit, QTextEdit, QSizePolicy
+from ...db_control.administrationController import AdminController, AdminInfoGetter, \
     TABLES_DEPENDENCY, TABLES_ORDER
 
 
@@ -15,14 +15,17 @@ class adminPanel(QWidget):
 
         dangerZoneLayout = QHBoxLayout()
         self.destroyButton = QPushButton("DESTROY")
+        self.destroyButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.destroyButton.setDisabled(True)
         self.destroyButton.clicked.connect(self.controller.destroy)
         dangerZoneLayout.addWidget(self.destroyButton)
         self.backupButton = QPushButton('BACKUP')
+        self.backupButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.backupButton.clicked.connect(self.controller.backup)
         dangerZoneLayout.addWidget(self.backupButton)
         self.createButton = QPushButton('RECREATE')
-        self.destroyButton.setDisabled(True)
+        self.createButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.createButton.setDisabled(True)
         self.createButton.clicked.connect(self.controller.create)
         dangerZoneLayout.addWidget(self.createButton)
         mainLayout.addLayout(dangerZoneLayout)
@@ -111,6 +114,7 @@ class NavPart(QWidget):
         self.list.itemClicked.connect(self.choose)
 
         self.button = QPushButton('+ Add')
+        self.button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.button.setDisabled(True)
         mainLayout.addWidget(self.button)
         self.button.clicked.connect(self.add)
@@ -163,10 +167,12 @@ class Workscpace(QWidget):
         self.buttonLayout = QHBoxLayout()
 
         self.saveButton = QPushButton('Save')
+        self.saveButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.saveButton.clicked.connect(self.save_row)
         self.buttonLayout.addWidget(self.saveButton)
 
         self.deleteButton = QPushButton('Delete')
+        self.deleteButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.deleteButton.clicked.connect(self.delete_row)
         self.buttonLayout.addWidget(self.deleteButton)
 
@@ -186,11 +192,15 @@ class Workscpace(QWidget):
             case 'Block':
                 extraLayout = QVBoxLayout()
 
+                nameLabel = QLabel('Name:')
                 self.name = QLineEdit()
+                descriptionLabel = QLabel('Description:')
                 self.description = TextEdit()
 
-                extraLayout.addWidget(self.name)
-                extraLayout.addWidget(self.description)
+                extraLayout.addWidget(nameLabel, stretch=1)
+                extraLayout.addWidget(self.name, stretch=2)
+                extraLayout.addWidget(descriptionLabel, stretch=1)
+                extraLayout.addWidget(self.description, stretch=5)
 
                 if not data is None:
                     self.name.setText(str(data[0]))

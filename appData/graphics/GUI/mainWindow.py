@@ -1,5 +1,5 @@
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QListWidget, QPushButton, QLabel, QTextEdit
-from ..db_control.mainController import MainController
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QListWidget, QPushButton, QLabel, QTextEdit, QSizePolicy
+from ...db_control.mainController import MainController
 
 class MainWindow(QWidget):
     def __init__(self):
@@ -10,7 +10,7 @@ class MainWindow(QWidget):
         self.content = QVBoxLayout()
 
         list_layout = QHBoxLayout()
-    
+
         self.block_list = QListWidget()
         self.block_list.addItems(self.controller.get_blocks())
         self.block_list.clicked.connect(self.block_clicked)
@@ -24,8 +24,8 @@ class MainWindow(QWidget):
         self.task_and_theory_list.clicked.connect(self.theory_and_task_determinant)
         list_layout.addWidget(self.task_and_theory_list)
 
-        main_layout.addLayout(list_layout)
-        main_layout.addLayout(self.content)
+        main_layout.addLayout(list_layout, stretch=1)
+        main_layout.addLayout(self.content, stretch=3)
 
         self.setLayout(main_layout)
 
@@ -41,14 +41,10 @@ class MainWindow(QWidget):
 
     def theme_clicked(self):
         theme = self.theme_list.selectedItems()[0].text() 
-        self.task_and_theory_list.clear()
+        self.task_and_theory_list.clear()   
         self.task_and_theory_list.addItems(self.controller.get_theories_and_tasks(theme))
         self.__clear_content()
-        try:
-            self.content.addWidget(ContentTheme(self.controller.set_theme(theme)))
-        except Exception as e:
-            print(e)
-            raise ''
+        self.content.addWidget(ContentTheme(self.controller.set_theme(theme)))
 
 
     def theory_and_task_determinant(self):
@@ -56,9 +52,9 @@ class MainWindow(QWidget):
         self.__clear_content()
         match determinant[:4]:
             case '[Th]':
-                self.theory_clicked(determinant[4:])
+                self.theory_clicked(determinant[6:])
             case '[Ex]':
-                self.task_clicked(determinant[4:])
+                self.task_clicked(determinant[6:])
             case _:
                 raise 'Wrong determination of task/theory'
         
@@ -157,6 +153,7 @@ class ContentTask(QWidget):
         self.testsList = QListWidget()
         self.codeEdit = QTextEdit()
         self.checkCode = QPushButton('Check')
+        self.checkCode.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.checkCode.clicked.connect(self.send_code)
 
         info_layout.addWidget(QLabel(str(name)))

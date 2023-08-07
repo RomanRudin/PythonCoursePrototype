@@ -23,13 +23,13 @@ class MainController():
         info.extend(self.cursor.execute('SELECT * FROM Task WHERE themeName=?', [theme]).fetchall())
         if info == []:
             return []
-        info = info.sort(key= lambda page: page[1])
+        info.sort(key= lambda page: page[1])
         extra_info = [0] * len(info)
         for index, enum in enumerate(info):
             if len(enum) == 4:
-                extra_info[index] = '[Th]' + str(enum)
+                extra_info[index] = '[Th]  ' + str(enum[0])
             else:
-                extra_info[index] = '[Ex]' + str(enum)
+                extra_info[index] = '[Ex]  ' + str(enum[0])
         return extra_info
 
 
